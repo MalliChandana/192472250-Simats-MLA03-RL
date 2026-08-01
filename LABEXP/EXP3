@@ -1,0 +1,170 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyMKT7ZJ8a9xiHbFpVkNZhzD",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/MalliChandana/192472250-Simats-MLA03-RL/blob/main/LABEXP/EXP3\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "pxWub2fhJeZM",
+        "outputId": "c990bc1a-c1e6-40e7-ab83-ebb5cc27c01a"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Optimal State Values\n",
+            "-----------------------\n",
+            "Start      : 142.44\n",
+            "PickItem   : 147.16\n",
+            "Move       : 143.63\n",
+            "Deliver    : 102.46\n",
+            "Goal       : 0.00\n",
+            "\n",
+            "Optimal Policy\n",
+            "-----------------------\n",
+            "Start      --> GoToShelf\n",
+            "PickItem   --> Pick\n",
+            "Move       --> MoveToDelivery\n",
+            "Deliver    --> DeliverPackage\n",
+            "Goal       --> -\n"
+          ]
+        }
+      ],
+      "source": [
+        "# Markov Decision Process (MDP) for an Autonomous Warehouse Robot\n",
+        "\n",
+        "# States\n",
+        "states = [\"Start\", \"PickItem\", \"Move\", \"Deliver\", \"Goal\"]\n",
+        "\n",
+        "# Actions available in each state\n",
+        "actions = {\n",
+        "    \"Start\": [\"GoToShelf\"],\n",
+        "    \"PickItem\": [\"Pick\"],\n",
+        "    \"Move\": [\"MoveToDelivery\"],\n",
+        "    \"Deliver\": [\"DeliverPackage\"],\n",
+        "    \"Goal\": []\n",
+        "}\n",
+        "\n",
+        "# Transition Probabilities\n",
+        "transitions = {\n",
+        "    (\"Start\", \"GoToShelf\"): [(\"PickItem\", 1.0)],\n",
+        "    (\"PickItem\", \"Pick\"): [(\"Move\", 0.9), (\"Start\", 0.1)],\n",
+        "    (\"Move\", \"MoveToDelivery\"): [(\"Deliver\", 0.8), (\"Move\", 0.2)],\n",
+        "    (\"Deliver\", \"DeliverPackage\"): [(\"Goal\", 0.95), (\"Move\", 0.05)]\n",
+        "}\n",
+        "\n",
+        "# Rewards\n",
+        "rewards = {\n",
+        "    \"Start\": 0,\n",
+        "    \"PickItem\": 10,\n",
+        "    \"Move\": 20,\n",
+        "    \"Deliver\": 50,\n",
+        "    \"Goal\": 100\n",
+        "}\n",
+        "\n",
+        "# Discount Factor\n",
+        "gamma = 0.9\n",
+        "\n",
+        "# Initialize Value Function\n",
+        "V = {state: 0 for state in states}\n",
+        "\n",
+        "# Value Iteration\n",
+        "threshold = 0.001\n",
+        "\n",
+        "while True:\n",
+        "    delta = 0\n",
+        "\n",
+        "    for state in states:\n",
+        "\n",
+        "        if state == \"Goal\":\n",
+        "            continue\n",
+        "\n",
+        "        max_value = float('-inf')\n",
+        "\n",
+        "        for action in actions[state]:\n",
+        "\n",
+        "            value = 0\n",
+        "\n",
+        "            for next_state, probability in transitions[(state, action)]:\n",
+        "                reward = rewards[next_state]\n",
+        "                value += probability * (reward + gamma * V[next_state])\n",
+        "\n",
+        "            max_value = max(max_value, value)\n",
+        "\n",
+        "        delta = max(delta, abs(V[state] - max_value))\n",
+        "        V[state] = max_value\n",
+        "\n",
+        "    if delta < threshold:\n",
+        "        break\n",
+        "\n",
+        "# Display State Values\n",
+        "print(\"Optimal State Values\")\n",
+        "print(\"-----------------------\")\n",
+        "\n",
+        "for state in states:\n",
+        "    print(f\"{state:10} : {V[state]:.2f}\")\n",
+        "\n",
+        "# Find Optimal Policy\n",
+        "policy = {}\n",
+        "\n",
+        "for state in states:\n",
+        "\n",
+        "    if state == \"Goal\":\n",
+        "        policy[state] = \"-\"\n",
+        "        continue\n",
+        "\n",
+        "    best_action = None\n",
+        "    best_value = float('-inf')\n",
+        "\n",
+        "    for action in actions[state]:\n",
+        "\n",
+        "        value = 0\n",
+        "\n",
+        "        for next_state, probability in transitions[(state, action)]:\n",
+        "            reward = rewards[next_state]\n",
+        "            value += probability * (reward + gamma * V[next_state])\n",
+        "\n",
+        "        if value > best_value:\n",
+        "            best_value = value\n",
+        "            best_action = action\n",
+        "\n",
+        "    policy[state] = best_action\n",
+        "\n",
+        "print(\"\\nOptimal Policy\")\n",
+        "print(\"-----------------------\")\n",
+        "\n",
+        "for state in states:\n",
+        "    print(f\"{state:10} --> {policy[state]}\")"
+      ]
+    }
+  ]
+}
