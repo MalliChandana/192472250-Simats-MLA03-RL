@@ -1,0 +1,127 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyN85utIPAxOaWxcJWtvEA9K",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/MalliChandana/192472250-Simats-MLA03-RL/blob/main/LABEXP/EXP5\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "X_JmbuXxLAUX",
+        "outputId": "96820dbd-a047-4b5c-f6d8-de3b1c9077e5"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Advertisement Statistics\n",
+            "----------------------------\n",
+            "Ad A\n",
+            "Times Selected : 51\n",
+            "Estimated CTR  : 0.118\n",
+            "\n",
+            "Ad B\n",
+            "Times Selected : 82\n",
+            "Estimated CTR  : 0.500\n",
+            "\n",
+            "Ad C\n",
+            "Times Selected : 848\n",
+            "Estimated CTR  : 0.703\n",
+            "\n",
+            "Ad D\n",
+            "Times Selected : 19\n",
+            "Estimated CTR  : 0.316\n",
+            "\n",
+            "Best Advertisement: Ad C\n",
+            "Total Clicks: 649\n"
+          ]
+        }
+      ],
+      "source": [
+        "import random\n",
+        "\n",
+        "# Advertisements (Bandits)\n",
+        "ads = [\"Ad A\", \"Ad B\", \"Ad C\", \"Ad D\"]\n",
+        "\n",
+        "# True click probabilities (unknown to the agent)\n",
+        "true_probabilities = [0.2, 0.5, 0.7, 0.4]\n",
+        "\n",
+        "# Estimated values for each ad\n",
+        "Q = [0.0] * len(ads)\n",
+        "\n",
+        "# Number of times each ad is selected\n",
+        "N = [0] * len(ads)\n",
+        "\n",
+        "# Parameters\n",
+        "epsilon = 0.1        # Exploration rate\n",
+        "iterations = 1000\n",
+        "\n",
+        "total_reward = 0\n",
+        "\n",
+        "for i in range(iterations):\n",
+        "\n",
+        "    # ε-Greedy Action Selection\n",
+        "    if random.random() < epsilon:\n",
+        "        action = random.randint(0, len(ads) - 1)   # Explore\n",
+        "    else:\n",
+        "        action = Q.index(max(Q))                   # Exploit\n",
+        "\n",
+        "    # Simulate User Click\n",
+        "    if random.random() < true_probabilities[action]:\n",
+        "        reward = 1\n",
+        "    else:\n",
+        "        reward = 0\n",
+        "\n",
+        "    total_reward += reward\n",
+        "\n",
+        "    # Update Counts\n",
+        "    N[action] += 1\n",
+        "\n",
+        "    # Update Estimated Reward\n",
+        "    Q[action] = Q[action] + (reward - Q[action]) / N[action]\n",
+        "\n",
+        "# Results\n",
+        "print(\"Advertisement Statistics\")\n",
+        "print(\"----------------------------\")\n",
+        "\n",
+        "for i in range(len(ads)):\n",
+        "    print(f\"{ads[i]}\")\n",
+        "    print(f\"Times Selected : {N[i]}\")\n",
+        "    print(f\"Estimated CTR  : {Q[i]:.3f}\")\n",
+        "    print()\n",
+        "\n",
+        "best_ad = ads[Q.index(max(Q))]\n",
+        "\n",
+        "print(\"Best Advertisement:\", best_ad)\n",
+        "print(\"Total Clicks:\", total_reward)"
+      ]
+    }
+  ]
+}
