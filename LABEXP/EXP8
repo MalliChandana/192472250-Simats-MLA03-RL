@@ -1,0 +1,90 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyMgT8JfcO54jA6cCdNLwfw2",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/MalliChandana/192472250-Simats-MLA03-RL/blob/main/LABEXP/EXP8\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "qKHdgrO7z8kh",
+        "outputId": "5f78e4c0-6ff6-4cce-d12d-9c487fa9f6ab"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Learned Policy:\n",
+            "[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]\n"
+          ]
+        }
+      ],
+      "source": [
+        "import gymnasium as gym\n",
+        "import numpy as np\n",
+        "import random\n",
+        "\n",
+        "env = gym.make(\"FrozenLake-v1\", is_slippery=False)\n",
+        "\n",
+        "Q = np.zeros((env.observation_space.n, env.action_space.n))\n",
+        "gamma = 0.9\n",
+        "alpha = 0.1\n",
+        "epsilon = 0.1\n",
+        "\n",
+        "# Monte Carlo Control\n",
+        "for episode in range(5000):\n",
+        "    state, _ = env.reset()\n",
+        "    episode_data = []\n",
+        "    done = False\n",
+        "\n",
+        "    while not done:\n",
+        "        if random.random() < epsilon:\n",
+        "            action = env.action_space.sample()\n",
+        "        else:\n",
+        "            action = np.argmax(Q[state])\n",
+        "\n",
+        "        next_state, reward, terminated, truncated, _ = env.step(action)\n",
+        "        done = terminated or truncated\n",
+        "        episode_data.append((state, action, reward))\n",
+        "        state = next_state\n",
+        "\n",
+        "    G = 0\n",
+        "    for state, action, reward in reversed(episode_data):\n",
+        "        G = gamma * G + reward\n",
+        "        Q[state, action] += alpha * (G - Q[state, action])\n",
+        "\n",
+        "policy = np.argmax(Q, axis=1)\n",
+        "\n",
+        "print(\"Learned Policy:\")\n",
+        "print(policy)"
+      ]
+    }
+  ]
+}
