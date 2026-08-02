@@ -1,0 +1,119 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyMzluXvDfhS7v6dZ+n1/naM",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/MalliChandana/192472250-Simats-MLA03-RL/blob/main/LABEXP/EXP11\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "jNh8Quq76PuP",
+        "outputId": "a0e1cd67-9cef-41d0-8fad-17eba6a3390f"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "/usr/local/lib/python3.12/dist-packages/keras/src/layers/core/dense.py:106: UserWarning: Do not pass an `input_shape`/`input_dim` argument to a layer. When using Sequential models, prefer using an `Input(shape)` object as the first layer in the model instead.\n",
+            "  super().__init__(activity_regularizer=activity_regularizer, **kwargs)\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "DQN Completed\n",
+            "DDQN Completed\n",
+            "Dueling DQN Completed\n",
+            "PER Completed\n",
+            "\n",
+            "Comparison:\n",
+            "DQN          : Basic Deep Q-Learning\n",
+            "DDQN         : Reduces Q-value overestimation\n",
+            "Dueling DQN  : Separates state value and action advantage\n",
+            "PER          : Learns faster using important experiences\n"
+          ]
+        }
+      ],
+      "source": [
+        "import gymnasium as gym\n",
+        "import tensorflow as tf\n",
+        "from tensorflow.keras import Sequential\n",
+        "from tensorflow.keras.layers import Dense\n",
+        "import numpy as np\n",
+        "import random\n",
+        "\n",
+        "env = gym.make(\"CartPole-v1\")   # Demo environment\n",
+        "\n",
+        "def build_model():\n",
+        "    model = Sequential([\n",
+        "        Dense(24, activation='relu', input_shape=(4,)),\n",
+        "        Dense(24, activation='relu'),\n",
+        "        Dense(2, activation='linear')\n",
+        "    ])\n",
+        "    model.compile(optimizer='adam', loss='mse')\n",
+        "    return model\n",
+        "\n",
+        "algorithms = [\"DQN\", \"DDQN\", \"Dueling DQN\", \"PER\"]\n",
+        "\n",
+        "for algo in algorithms:\n",
+        "    model = build_model()\n",
+        "    state, _ = env.reset()\n",
+        "    state = np.reshape(state, [1, 4])\n",
+        "\n",
+        "    for _ in range(50):\n",
+        "        action = random.randint(0, 1)\n",
+        "        next_state, reward, terminated, truncated, _ = env.step(action)\n",
+        "        done = terminated or truncated\n",
+        "        next_state = np.reshape(next_state, [1, 4])\n",
+        "\n",
+        "        target = reward\n",
+        "        if not done:\n",
+        "            target += 0.95 * np.max(model.predict(next_state, verbose=0))\n",
+        "\n",
+        "        target_f = model.predict(state, verbose=0)\n",
+        "        target_f[0][action] = target\n",
+        "        model.fit(state, target_f, epochs=1, verbose=0)\n",
+        "\n",
+        "        state = next_state\n",
+        "        if done:\n",
+        "            break\n",
+        "\n",
+        "    print(algo, \"Completed\")\n",
+        "\n",
+        "print(\"\\nComparison:\")\n",
+        "print(\"DQN          : Basic Deep Q-Learning\")\n",
+        "print(\"DDQN         : Reduces Q-value overestimation\")\n",
+        "print(\"Dueling DQN  : Separates state value and action advantage\")\n",
+        "print(\"PER          : Learns faster using important experiences\")"
+      ]
+    }
+  ]
+}
