@@ -1,0 +1,91 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyOaqaVsBs78M5zRKXyzdnpE",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/MalliChandana/192472250-Simats-MLA03-RL/blob/main/LABEXP/EXP15\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 3,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "-wDTnd4o9sk5",
+        "outputId": "f0360ed7-19e9-48da-b819-2e450c63fed1"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Requirement already satisfied: stable-baselines3 in /usr/local/lib/python3.12/dist-packages (2.9.0)\n",
+            "Requirement already satisfied: gymnasium in /usr/local/lib/python3.12/dist-packages (1.3.0)\n",
+            "Requirement already satisfied: numpy<3.0,>=1.20 in /usr/local/lib/python3.12/dist-packages (from stable-baselines3) (2.0.2)\n",
+            "Requirement already satisfied: torch<3.0,>=2.8 in /usr/local/lib/python3.12/dist-packages (from stable-baselines3) (2.11.0+cpu)\n",
+            "Requirement already satisfied: cloudpickle in /usr/local/lib/python3.12/dist-packages (from stable-baselines3) (3.1.2)\n",
+            "Requirement already satisfied: typing-extensions>=4.3.0 in /usr/local/lib/python3.12/dist-packages (from gymnasium) (4.16.0)\n",
+            "Requirement already satisfied: farama-notifications>=0.0.1 in /usr/local/lib/python3.12/dist-packages (from gymnasium) (0.0.6)\n",
+            "Requirement already satisfied: filelock in /usr/local/lib/python3.12/dist-packages (from torch<3.0,>=2.8->stable-baselines3) (3.29.7)\n",
+            "Requirement already satisfied: setuptools<82 in /usr/local/lib/python3.12/dist-packages (from torch<3.0,>=2.8->stable-baselines3) (75.2.0)\n",
+            "Requirement already satisfied: sympy>=1.13.3 in /usr/local/lib/python3.12/dist-packages (from torch<3.0,>=2.8->stable-baselines3) (1.14.0)\n",
+            "Requirement already satisfied: networkx>=2.5.1 in /usr/local/lib/python3.12/dist-packages (from torch<3.0,>=2.8->stable-baselines3) (3.6.1)\n",
+            "Requirement already satisfied: jinja2 in /usr/local/lib/python3.12/dist-packages (from torch<3.0,>=2.8->stable-baselines3) (3.1.6)\n",
+            "Requirement already satisfied: fsspec>=0.8.5 in /usr/local/lib/python3.12/dist-packages (from torch<3.0,>=2.8->stable-baselines3) (2025.3.0)\n",
+            "Requirement already satisfied: mpmath<1.4,>=1.1.0 in /usr/local/lib/python3.12/dist-packages (from sympy>=1.13.3->torch<3.0,>=2.8->stable-baselines3) (1.3.0)\n",
+            "Requirement already satisfied: MarkupSafe>=2.0 in /usr/local/lib/python3.12/dist-packages (from jinja2->torch<3.0,>=2.8->stable-baselines3) (3.0.3)\n",
+            "PPO Training Completed\n",
+            "TRPO: Similar to PPO but uses trust-region optimization for stable updates.\n"
+          ]
+        }
+      ],
+      "source": [
+        "!pip install stable-baselines3 gymnasium\n",
+        "import gymnasium as gym\n",
+        "from stable_baselines3 import PPO\n",
+        "\n",
+        "# Create Environment\n",
+        "env = gym.make(\"CartPole-v1\")\n",
+        "\n",
+        "# PPO Model\n",
+        "model = PPO(\"MlpPolicy\", env, verbose=0)\n",
+        "\n",
+        "# Train\n",
+        "model.learn(total_timesteps=10000)\n",
+        "\n",
+        "# Test\n",
+        "obs, _ = env.reset()\n",
+        "for _ in range(100):\n",
+        "    action, _ = model.predict(obs)\n",
+        "    obs, reward, terminated, truncated, _ = env.step(action)\n",
+        "    if terminated or truncated:\n",
+        "        obs, _ = env.reset()\n",
+        "\n",
+        "print(\"PPO Training Completed\")\n",
+        "print(\"TRPO: Similar to PPO but uses trust-region optimization for stable updates.\")"
+      ]
+    }
+  ]
+}
