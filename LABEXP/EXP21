@@ -1,0 +1,95 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyOO+0rTx8KRnEhBgWIRb/OV",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/MalliChandana/192472250-Simats-MLA03-RL/blob/main/LABEXP/EXP21\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "oGeFVtolCdLQ",
+        "outputId": "0a6778b9-21f0-4095-f465-a7051a4e65d6"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Q-Table:\n",
+            "[85.91489468432476, 76.43173811030553, 71.10433881107974]\n",
+            "[85.37494856366858, 73.48964411079822, 63.12882734736098]\n",
+            "[84.5130653859538, 66.98666235933987, 71.08160226020772]\n",
+            "\n",
+            "Smart Energy Management Training Completed\n"
+          ]
+        }
+      ],
+      "source": [
+        "import random\n",
+        "\n",
+        "# States and Actions\n",
+        "states = [\"Low\", \"Medium\", \"High\"]\n",
+        "actions = [\"Reduce\", \"Maintain\", \"Increase\"]\n",
+        "\n",
+        "Q = [[0 for _ in actions] for _ in states]\n",
+        "\n",
+        "alpha = 0.1\n",
+        "gamma = 0.9\n",
+        "epsilon = 0.2\n",
+        "\n",
+        "# Training\n",
+        "for episode in range(100):\n",
+        "    state = random.randint(0, 2)\n",
+        "\n",
+        "    for step in range(10):\n",
+        "        if random.random() < epsilon:\n",
+        "            action = random.randint(0, 2)\n",
+        "        else:\n",
+        "            action = Q[state].index(max(Q[state]))\n",
+        "\n",
+        "        # Reward (lower energy = higher reward)\n",
+        "        reward = 10 - abs(state - action)\n",
+        "\n",
+        "        next_state = random.randint(0, 2)\n",
+        "\n",
+        "        Q[state][action] += alpha * (\n",
+        "            reward + gamma * max(Q[next_state]) - Q[state][action]\n",
+        "        )\n",
+        "\n",
+        "        state = next_state\n",
+        "\n",
+        "print(\"Q-Table:\")\n",
+        "for row in Q:\n",
+        "    print(row)\n",
+        "\n",
+        "print(\"\\nSmart Energy Management Training Completed\")"
+      ]
+    }
+  ]
+}
