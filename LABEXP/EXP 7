@@ -1,0 +1,88 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyOAALxG2+Db5zp7hUWqvP/p",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/MalliChandana/192472250-Simats-MLA03-RL/blob/main/LABEXP/EXP%207\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": null,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "5_XmuPOoy8nj",
+        "outputId": "f9597e99-bd14-4c5e-f73f-9904fcaef07f"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Optimal Policy (first 20 states):\n",
+            "[4 4 4 4 0 0 0 0 0 0 0 0 0 0 0 0 5 0 0 0]\n"
+          ]
+        }
+      ],
+      "source": [
+        "import gymnasium as gym\n",
+        "import numpy as np\n",
+        "\n",
+        "# Create Taxi environment\n",
+        "env = gym.make(\"Taxi-v4\")\n",
+        "\n",
+        "# Initialize Value Function\n",
+        "V = np.zeros(env.observation_space.n)\n",
+        "gamma = 0.9\n",
+        "\n",
+        "# Value Iteration\n",
+        "while True:\n",
+        "    delta = 0\n",
+        "    for s in range(env.observation_space.n):\n",
+        "        v = V[s]\n",
+        "        q = []\n",
+        "        for a in range(env.action_space.n):\n",
+        "            q.append(sum(p * (r + gamma * V[ns])\n",
+        "                         for p, ns, r, done in env.unwrapped.P[s][a]))\n",
+        "        V[s] = max(q)\n",
+        "        delta = max(delta, abs(v - V[s]))\n",
+        "    if delta < 1e-4:\n",
+        "        break\n",
+        "\n",
+        "# Extract Optimal Policy\n",
+        "policy = np.zeros(env.observation_space.n, dtype=int)\n",
+        "for s in range(env.observation_space.n):\n",
+        "    q = []\n",
+        "    for a in range(env.action_space.n):\n",
+        "        q.append(sum(p * (r + gamma * V[ns])\n",
+        "                     for p, ns, r, done in env.unwrapped.P[s][a]))\n",
+        "    policy[s] = np.argmax(q)\n",
+        "\n",
+        "print(\"Optimal Policy (first 20 states):\")\n",
+        "print(policy[:20])"
+      ]
+    }
+  ]
+}
