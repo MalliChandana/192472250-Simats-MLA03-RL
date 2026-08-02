@@ -1,0 +1,94 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyOBZrbaMwstrhAvQZmwnuCo",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/MalliChandana/192472250-Simats-MLA03-RL/blob/main/LABEXP/EXP20\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "hkVOrTNsB0Rg",
+        "outputId": "e562f6b4-3cde-4392-bd7d-90569efa6fa4"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Step 1\n",
+            "Observation: Clear\n",
+            "Action: Move\n",
+            "Estimated State: Safe\n",
+            "Step 2\n",
+            "Observation: Clear\n",
+            "Action: Move\n",
+            "Estimated State: Victim\n",
+            "Step 3\n",
+            "Observation: Clear\n",
+            "Action: Search\n",
+            "Estimated State: Safe\n",
+            "Step 4\n",
+            "Observation: Clear\n",
+            "Action: Search\n",
+            "Estimated State: Obstacle\n",
+            "Step 5\n",
+            "Observation: Noise\n",
+            "Action: Search\n",
+            "Estimated State: Obstacle\n",
+            "\n",
+            "POMDP Decision Process Completed\n"
+          ]
+        }
+      ],
+      "source": [
+        "import random\n",
+        "\n",
+        "# States, Observations, Actions\n",
+        "states = [\"Safe\", \"Victim\", \"Obstacle\"]\n",
+        "observations = [\"Noise\", \"Heat\", \"Clear\"]\n",
+        "actions = [\"Move\", \"Search\", \"Rescue\"]\n",
+        "\n",
+        "belief = {\"Safe\": 0.5, \"Victim\": 0.3, \"Obstacle\": 0.2}\n",
+        "\n",
+        "# Simulate POMDP\n",
+        "for step in range(5):\n",
+        "    obs = random.choice(observations)\n",
+        "    action = random.choice(actions)\n",
+        "    state = random.choices(states, weights=belief.values())[0]\n",
+        "\n",
+        "    print(f\"Step {step+1}\")\n",
+        "    print(\"Observation:\", obs)\n",
+        "    print(\"Action:\", action)\n",
+        "    print(\"Estimated State:\", state)\n",
+        "\n",
+        "print(\"\\nPOMDP Decision Process Completed\")"
+      ]
+    }
+  ]
+}
