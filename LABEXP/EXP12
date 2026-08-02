@@ -1,0 +1,113 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyNdL46Hs3m7MqgjRpTWPLhi",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/MalliChandana/192472250-Simats-MLA03-RL/blob/main/LABEXP/EXP12\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "pyvZb2v_7i7v",
+        "outputId": "ba8e5978-9c6f-4a1d-c4be-0486eac0cc7d"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "/usr/local/lib/python3.12/dist-packages/keras/src/layers/core/dense.py:106: UserWarning: Do not pass an `input_shape`/`input_dim` argument to a layer. When using Sequential models, prefer using an `Input(shape)` object as the first layer in the model instead.\n",
+            "  super().__init__(activity_regularizer=activity_regularizer, **kwargs)\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Training Completed\n"
+          ]
+        }
+      ],
+      "source": [
+        "import gymnasium as gym\n",
+        "import tensorflow as tf\n",
+        "import numpy as np\n",
+        "\n",
+        "env = gym.make(\"CartPole-v1\")\n",
+        "\n",
+        "# Policy Network\n",
+        "model = tf.keras.Sequential([\n",
+        "    tf.keras.layers.Dense(24, activation=\"relu\", input_shape=(4,)),\n",
+        "    tf.keras.layers.Dense(2, activation=\"softmax\")\n",
+        "])\n",
+        "\n",
+        "optimizer = tf.keras.optimizers.Adam(0.01)\n",
+        "gamma = 0.99\n",
+        "\n",
+        "# Training\n",
+        "for episode in range(100):\n",
+        "    state, _ = env.reset()\n",
+        "    states, actions, rewards = [], [], []\n",
+        "    done = False\n",
+        "\n",
+        "    while not done:\n",
+        "        state_input = np.expand_dims(state, axis=0)\n",
+        "        probs = model(state_input).numpy()[0]\n",
+        "        action = np.random.choice(2, p=probs)\n",
+        "\n",
+        "        next_state, reward, terminated, truncated, _ = env.step(action)\n",
+        "        done = terminated or truncated\n",
+        "\n",
+        "        states.append(state)\n",
+        "        actions.append(action)\n",
+        "        rewards.append(reward)\n",
+        "        state = next_state\n",
+        "\n",
+        "    # Compute Returns\n",
+        "    returns = []\n",
+        "    G = 0\n",
+        "    for r in reversed(rewards):\n",
+        "        G = r + gamma * G\n",
+        "        returns.insert(0, G)\n",
+        "\n",
+        "    # Update Policy\n",
+        "    with tf.GradientTape() as tape:\n",
+        "        loss = 0\n",
+        "        for s, a, G in zip(states, actions, returns):\n",
+        "            s = np.expand_dims(s, axis=0)\n",
+        "            probs = model(s)[0]\n",
+        "            loss -= tf.math.log(probs[a]) * G\n",
+        "\n",
+        "    grads = tape.gradient(loss, model.trainable_variables)\n",
+        "    optimizer.apply_gradients(zip(grads, model.trainable_variables))\n",
+        "\n",
+        "print(\"Training Completed\")"
+      ]
+    }
+  ]
+}
