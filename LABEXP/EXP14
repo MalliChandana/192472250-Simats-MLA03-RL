@@ -1,0 +1,116 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyOS8ySSfY9qwe/oeJzExrHZ",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/MalliChandana/192472250-Simats-MLA03-RL/blob/main/LABEXP/EXP14\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "bWeRv3Mh9EoK",
+        "outputId": "c984058e-8174-4269-f5f9-4bb332edb9d5"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "/usr/local/lib/python3.12/dist-packages/keras/src/layers/core/dense.py:106: UserWarning: Do not pass an `input_shape`/`input_dim` argument to a layer. When using Sequential models, prefer using an `Input(shape)` object as the first layer in the model instead.\n",
+            "  super().__init__(activity_regularizer=activity_regularizer, **kwargs)\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "A2C Training Completed\n",
+            "A3C: Similar algorithm using multiple parallel workers.\n"
+          ]
+        }
+      ],
+      "source": [
+        "import gymnasium as gym\n",
+        "import tensorflow as tf\n",
+        "import numpy as np\n",
+        "\n",
+        "env = gym.make(\"CartPole-v1\")\n",
+        "\n",
+        "# Actor Network\n",
+        "actor = tf.keras.Sequential([\n",
+        "    tf.keras.layers.Dense(24, activation=\"relu\", input_shape=(4,)),\n",
+        "    tf.keras.layers.Dense(2, activation=\"softmax\")\n",
+        "])\n",
+        "\n",
+        "# Critic Network\n",
+        "critic = tf.keras.Sequential([\n",
+        "    tf.keras.layers.Dense(24, activation=\"relu\", input_shape=(4,)),\n",
+        "    tf.keras.layers.Dense(1)\n",
+        "])\n",
+        "\n",
+        "actor_opt = tf.keras.optimizers.Adam(0.001)\n",
+        "critic_opt = tf.keras.optimizers.Adam(0.001)\n",
+        "gamma = 0.99\n",
+        "\n",
+        "for episode in range(100):\n",
+        "    state, _ = env.reset()\n",
+        "    done = False\n",
+        "\n",
+        "    while not done:\n",
+        "        s = np.expand_dims(state, 0)\n",
+        "        probs = actor(s).numpy()[0]\n",
+        "        action = np.random.choice(2, p=probs)\n",
+        "\n",
+        "        next_state, reward, terminated, truncated, _ = env.step(action)\n",
+        "        done = terminated or truncated\n",
+        "\n",
+        "        s2 = np.expand_dims(next_state, 0)\n",
+        "        target = reward + gamma * critic(s2) * (1 - done)\n",
+        "        advantage = target - critic(s)\n",
+        "\n",
+        "        # Update Critic\n",
+        "        with tf.GradientTape() as tape:\n",
+        "            loss_c = tf.square(target - critic(s))\n",
+        "        grads = tape.gradient(loss_c, critic.trainable_variables)\n",
+        "        critic_opt.apply_gradients(zip(grads, critic.trainable_variables))\n",
+        "\n",
+        "        # Update Actor\n",
+        "        with tf.GradientTape() as tape:\n",
+        "            p = actor(s)[0, action]\n",
+        "            loss_a = -tf.math.log(p) * tf.stop_gradient(advantage)\n",
+        "        grads = tape.gradient(loss_a, actor.trainable_variables)\n",
+        "        actor_opt.apply_gradients(zip(grads, actor.trainable_variables))\n",
+        "\n",
+        "        state = next_state\n",
+        "\n",
+        "print(\"A2C Training Completed\")\n",
+        "print(\"A3C: Similar algorithm using multiple parallel workers.\")"
+      ]
+    }
+  ]
+}
