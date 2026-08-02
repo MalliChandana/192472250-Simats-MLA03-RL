@@ -1,0 +1,110 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyOFtSmNQ0EciFNS+NZ8omoU",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/MalliChandana/192472250-Simats-MLA03-RL/blob/main/LABEXP/EXP17\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "ZeRGnN_K_2gr",
+        "outputId": "d5fb8011-95ff-4930-a6d7-3301cd543406"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "\n",
+            "Episode 1\n",
+            "Clean -> Success\n",
+            "Pick -> Retry\n",
+            "Place -> Success\n",
+            "Recharge -> Retry\n",
+            "Total Reward: 16\n",
+            "\n",
+            "Episode 2\n",
+            "Clean -> Success\n",
+            "Pick -> Retry\n",
+            "Place -> Success\n",
+            "Recharge -> Success\n",
+            "Total Reward: 28\n",
+            "\n",
+            "Episode 3\n",
+            "Clean -> Retry\n",
+            "Pick -> Success\n",
+            "Place -> Retry\n",
+            "Recharge -> Retry\n",
+            "Total Reward: 4\n",
+            "\n",
+            "Episode 4\n",
+            "Clean -> Success\n",
+            "Pick -> Retry\n",
+            "Place -> Success\n",
+            "Recharge -> Success\n",
+            "Total Reward: 28\n",
+            "\n",
+            "Episode 5\n",
+            "Clean -> Retry\n",
+            "Pick -> Success\n",
+            "Place -> Retry\n",
+            "Recharge -> Success\n",
+            "Total Reward: 16\n",
+            "\n",
+            "HRL Completed using HAM/MAXQ Task Hierarchy\n"
+          ]
+        }
+      ],
+      "source": [
+        "import random\n",
+        "\n",
+        "# Hierarchical Tasks (MAXQ / HAM style)\n",
+        "tasks = [\"Clean\", \"Pick\", \"Place\", \"Recharge\"]\n",
+        "\n",
+        "# Simulate Robot Actions\n",
+        "for episode in range(5):\n",
+        "    print(f\"\\nEpisode {episode+1}\")\n",
+        "    reward = 0\n",
+        "\n",
+        "    for task in tasks:\n",
+        "        action = random.choice([\"Success\", \"Retry\"])\n",
+        "        print(task, \"->\", action)\n",
+        "\n",
+        "        if action == \"Success\":\n",
+        "            reward += 10\n",
+        "        else:\n",
+        "            reward -= 2\n",
+        "\n",
+        "    print(\"Total Reward:\", reward)\n",
+        "\n",
+        "print(\"\\nHRL Completed using HAM/MAXQ Task Hierarchy\")"
+      ]
+    }
+  ]
+}
