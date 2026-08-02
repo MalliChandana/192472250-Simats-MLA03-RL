@@ -1,0 +1,96 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyOTSfwRMnvHUU2c7fxHu2w0",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/MalliChandana/192472250-Simats-MLA03-RL/blob/main/LABEXP/EXP9\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "7xzLo0kQ0bax",
+        "outputId": "74cf2668-3df2-4c1b-d8c7-ab19627cc3d2"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "State Values (TD):\n",
+            "[0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0. 0.]\n",
+            "\n",
+            "Learned Policy:\n",
+            "[0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0]\n"
+          ]
+        }
+      ],
+      "source": [
+        "import gymnasium as gym\n",
+        "import numpy as np\n",
+        "import random\n",
+        "\n",
+        "env = gym.make(\"FrozenLake-v1\", is_slippery=False)\n",
+        "\n",
+        "alpha = 0.1\n",
+        "gamma = 0.9\n",
+        "epsilon = 0.1\n",
+        "\n",
+        "Q = np.zeros((env.observation_space.n, env.action_space.n))\n",
+        "V = np.zeros(env.observation_space.n)\n",
+        "\n",
+        "for episode in range(3000):\n",
+        "    state, _ = env.reset()\n",
+        "    action = np.argmax(Q[state]) if random.random() > epsilon else env.action_space.sample()\n",
+        "    done = False\n",
+        "\n",
+        "    while not done:\n",
+        "        next_state, reward, terminated, truncated, _ = env.step(action)\n",
+        "        done = terminated or truncated\n",
+        "\n",
+        "        # TD(0)\n",
+        "        V[state] += alpha * (reward + gamma * V[next_state] - V[state])\n",
+        "\n",
+        "        # SARSA\n",
+        "        next_action = np.argmax(Q[next_state]) if random.random() > epsilon else env.action_space.sample()\n",
+        "        Q[state, action] += alpha * (reward + gamma * Q[next_state, next_action] - Q[state, action])\n",
+        "\n",
+        "        # Q-Learning\n",
+        "        Q[state, action] += alpha * (reward + gamma * np.max(Q[next_state]) - Q[state, action])\n",
+        "\n",
+        "        state = next_state\n",
+        "        action = next_action\n",
+        "\n",
+        "print(\"State Values (TD):\")\n",
+        "print(V)\n",
+        "\n",
+        "print(\"\\nLearned Policy:\")\n",
+        "print(np.argmax(Q, axis=1))"
+      ]
+    }
+  ]
+}
