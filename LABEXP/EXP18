@@ -1,0 +1,97 @@
+{
+  "nbformat": 4,
+  "nbformat_minor": 0,
+  "metadata": {
+    "colab": {
+      "provenance": [],
+      "authorship_tag": "ABX9TyOVydF3maoAqBF4GJXOwDsE",
+      "include_colab_link": true
+    },
+    "kernelspec": {
+      "name": "python3",
+      "display_name": "Python 3"
+    },
+    "language_info": {
+      "name": "python"
+    }
+  },
+  "cells": [
+    {
+      "cell_type": "markdown",
+      "metadata": {
+        "id": "view-in-github",
+        "colab_type": "text"
+      },
+      "source": [
+        "<a href=\"https://colab.research.google.com/github/MalliChandana/192472250-Simats-MLA03-RL/blob/main/LABEXP/EXP18\" target=\"_parent\"><img src=\"https://colab.research.google.com/assets/colab-badge.svg\" alt=\"Open In Colab\"/></a>"
+      ]
+    },
+    {
+      "cell_type": "code",
+      "execution_count": 1,
+      "metadata": {
+        "colab": {
+          "base_uri": "https://localhost:8080/"
+        },
+        "id": "f7yi1sJ8A3lB",
+        "outputId": "5357bba4-e5a3-4954-ff7c-0df1e2ed19da"
+      },
+      "outputs": [
+        {
+          "output_type": "stream",
+          "name": "stderr",
+          "text": [
+            "/usr/local/lib/python3.12/dist-packages/keras/src/layers/core/dense.py:106: UserWarning: Do not pass an `input_shape`/`input_dim` argument to a layer. When using Sequential models, prefer using an `Input(shape)` object as the first layer in the model instead.\n",
+            "  super().__init__(activity_regularizer=activity_regularizer, **kwargs)\n"
+          ]
+        },
+        {
+          "output_type": "stream",
+          "name": "stdout",
+          "text": [
+            "Meta-RL Training Completed\n"
+          ]
+        }
+      ],
+      "source": [
+        "import gymnasium as gym\n",
+        "import tensorflow as tf\n",
+        "import numpy as np\n",
+        "\n",
+        "env = gym.make(\"CartPole-v1\")\n",
+        "\n",
+        "# Meta-RL Model\n",
+        "model = tf.keras.Sequential([\n",
+        "    tf.keras.layers.Dense(32, activation=\"relu\", input_shape=(4,)),\n",
+        "    tf.keras.layers.Dense(2, activation=\"softmax\")\n",
+        "])\n",
+        "\n",
+        "optimizer = tf.keras.optimizers.Adam(0.001)\n",
+        "\n",
+        "# Meta Training\n",
+        "for task in range(5):      # Simulate different tasks\n",
+        "    state, _ = env.reset()\n",
+        "    done = False\n",
+        "\n",
+        "    while not done:\n",
+        "        s = np.expand_dims(state, 0)\n",
+        "        probs = model(s).numpy()[0]\n",
+        "        action = np.random.choice(2, p=probs)\n",
+        "\n",
+        "        next_state, reward, terminated, truncated, _ = env.step(action)\n",
+        "        done = terminated or truncated\n",
+        "\n",
+        "        with tf.GradientTape() as tape:\n",
+        "            p = model(s)[0, action]\n",
+        "            loss = -tf.math.log(p) * reward\n",
+        "\n",
+        "        grads = tape.gradient(loss, model.trainable_variables)\n",
+        "        optimizer.apply_gradients(zip(grads, model.trainable_variables))\n",
+        "\n",
+        "        state = next_state\n",
+        "\n",
+        "print(\"Meta-RL Training Completed\")"
+      ]
+    }
+  ]
+}
